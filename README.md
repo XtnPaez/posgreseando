@@ -37,6 +37,31 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA salud
 GRANT SELECT ON TABLES TO rol_data_analyst;
 ```
 
+## Roles asignados
+```
+SELECT u.rolname AS usuario, r.rolname AS rol_asignado
+FROM pg_auth_members m
+JOIN pg_roles r ON m.roleid = r.oid
+JOIN pg_roles u ON m.member = u.oid
+WHERE u.rolname IN ('pgutierrez', 'gmendoza');
+```
+
+## Privilegios sobre esquemas
+```
+SELECT nspname AS esquema,
+       u.usename AS usuario,
+       has_schema_privilege(u.usename, nspname, 'USAGE')  AS puede_usar,
+       has_schema_privilege(u.usename, nspname, 'CREATE') AS puede_crear
+FROM pg_namespace n
+CROSS JOIN (SELECT usename FROM pg_user WHERE usename IN ('pgutierrez','gmendoza')) u
+ORDER BY esquema, usuario;
+```
+
+## Probar si el usuario puede conectarse desde tu sesion 
+```
+SELECT has_database_privilege('gmendoza', 'sisapp', 'CONNECT');
+```
+
 ## FDW (Foreign Data Wrapper)
 
 Tenés dos bases:
